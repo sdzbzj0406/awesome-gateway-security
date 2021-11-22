@@ -16,14 +16,6 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 public class SecurityConfig {
 
 
-    @Autowired
-    private AuthenticationSuccessHandler authenticationSuccessHandler;
-    @Autowired
-    private AuthenticationFaillHandler authenticationFaillHandler;
-    @Autowired
-    private CustomHttpBasicServerAuthenticationEntryPoint customHttpBasicServerAuthenticationEntryPoint;
-
-
     //security的鉴权排除列表
     private static final String[] excludedAuthPages = {
             "/auth/login",
@@ -31,9 +23,15 @@ public class SecurityConfig {
             "/health",
             "/api/socket/**"
     };
+    @Autowired
+    private AuthenticationSuccessHandler authenticationSuccessHandler;
+    @Autowired
+    private AuthenticationFaillHandler authenticationFaillHandler;
+    @Autowired
+    private CustomHttpBasicServerAuthenticationEntryPoint customHttpBasicServerAuthenticationEntryPoint;
 
     @Bean
-    SecurityWebFilterChain webFluxSecurityFilterChain(ServerHttpSecurity http) throws Exception {
+    SecurityWebFilterChain webFluxSecurityFilterChain(ServerHttpSecurity http) {
         http
                 .authorizeExchange()
                 .pathMatchers(excludedAuthPages).permitAll()  //无需进行权限过滤的请求路径
@@ -46,7 +44,7 @@ public class SecurityConfig {
                 .authenticationSuccessHandler(authenticationSuccessHandler) //认证成功
                 .authenticationFailureHandler(authenticationFaillHandler) //登陆验证失败
                 .and().exceptionHandling().authenticationEntryPoint(customHttpBasicServerAuthenticationEntryPoint)  //基于http的接口请求鉴权失败
-                .and() .csrf().disable()//必须支持跨域
+                .and().csrf().disable()//必须支持跨域
                 .logout().disable();
 
         return http.build();
@@ -54,7 +52,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return  NoOpPasswordEncoder.getInstance(); //默认
+        return NoOpPasswordEncoder.getInstance(); //默认
     }
 
 

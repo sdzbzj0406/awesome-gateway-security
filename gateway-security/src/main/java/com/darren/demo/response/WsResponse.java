@@ -21,35 +21,6 @@ public class WsResponse<T> {
         this.result = result;
     }
 
-    public MessageCode getStatus() {
-        return status;
-    }
-
-    public void setStatus(MessageCode status) {
-        this.status = status;
-    }
-
-    public List<String> getMessages() {
-        return messages;
-    }
-
-    public void setMessages(List<String> messages) {
-        this.messages = messages;
-    }
-
-    public T getResult() {
-        return result;
-    }
-
-    public void setResult(T result) {
-        this.result = result;
-    }
-
-    @Override
-    public String toString() {
-        return "error code:" + status + " result:" + result;
-    }
-
     public static WsResponse failure(String msg) {
         WsResponse resp = new WsResponse();
         resp.status = MessageCode.COMMON_FAILURE;
@@ -67,8 +38,8 @@ public class WsResponse<T> {
     public static WsResponse failure(MessageCode messageCode, String message) {
         WsResponse resp = new WsResponse();
         resp.status = messageCode;
-        if(StringUtils.isNotBlank(messageCode.getMsg())){
-        	resp.getMessages().add(messageCode.getMsg());
+        if (StringUtils.isNotBlank(messageCode.getMsg())) {
+            resp.getMessages().add(messageCode.getMsg());
         }
         if (StringUtils.isNotBlank(message)) {
             resp.getMessages().add(message);
@@ -106,5 +77,34 @@ public class WsResponse<T> {
         } else {
             return false;
         }
+    }
+
+    public MessageCode getStatus() {
+        return status;
+    }
+
+    public void setStatus(MessageCode status) {
+        this.status = status;
+    }
+
+    public List<String> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(List<String> messages) {
+        this.messages = messages;
+    }
+
+    public T getResult() {
+        return result;
+    }
+
+    public void setResult(T result) {
+        this.result = result;
+    }
+
+    @Override
+    public String toString() {
+        return "error code:" + status + " result:" + result;
     }
 }

@@ -20,10 +20,10 @@ import java.util.Base64;
 
 
 @Component
-public class AuthenticationSuccessHandler extends WebFilterChainServerAuthenticationSuccessHandler   {
+public class AuthenticationSuccessHandler extends WebFilterChainServerAuthenticationSuccessHandler {
 
     @Override
-    public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication){
+    public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
         ServerWebExchange exchange = webFilterExchange.getExchange();
         ServerHttpResponse response = exchange.getResponse();
         //设置headers
@@ -32,41 +32,34 @@ public class AuthenticationSuccessHandler extends WebFilterChainServerAuthentica
         httpHeaders.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
         //设置body
         WsResponse wsResponse = WsResponse.success();
-       byte[]   dataBytes={};
+        byte[] dataBytes = {};
         ObjectMapper mapper = new ObjectMapper();
         try {
-            User user=(User)authentication.getPrincipal();
-            AuthUserDetails userDetails=buildUser(user);
-            byte[] authorization=(userDetails.getUsername()+":"+userDetails.getPassword()).getBytes();
-            String token= Base64.getEncoder().encodeToString(authorization);
+            User user = (User) authentication.getPrincipal();
+            AuthUserDetails userDetails = buildUser(user);
+            byte[] authorization = (userDetails.getUsername() + ":" + userDetails.getPassword()).getBytes();
+            String token = Base64.getEncoder().encodeToString(authorization);
             httpHeaders.add(HttpHeaders.AUTHORIZATION, token);
             wsResponse.setResult(userDetails);
-            dataBytes=mapper.writeValueAsBytes(wsResponse);
-        }
-        catch (Exception ex){
+            dataBytes = mapper.writeValueAsBytes(wsResponse);
+        } catch (Exception ex) {
             ex.printStackTrace();
             JsonObject result = new JsonObject();
             result.addProperty("status", MessageCode.COMMON_FAILURE.getCode());
             result.addProperty("message", "授权异常");
-            dataBytes=result.toString().getBytes();
+            dataBytes = result.toString().getBytes();
         }
         DataBuffer bodyDataBuffer = response.bufferFactory().wrap(dataBytes);
         return response.writeWith(Mono.just(bodyDataBuffer));
     }
 
 
-
-    private AuthUserDetails  buildUser(User user){
-        AuthUserDetails userDetails=new AuthUserDetails();
+    private AuthUserDetails buildUser(User user) {
+        AuthUserDetails userDetails = new AuthUserDetails();
         userDetails.setUsername(user.getUsername());
-        userDetails.setPassword(user.getPassword().substring(user.getPassword().lastIndexOf("}")+1,user.getPassword().length()));
+        userDetails.setPassword(user.getPassword().substring(user.getPassword().lastIndexOf("}") + 1, user.getPassword().length()));
         return userDetails;
     }
-
-
-
-
-
 
 
 }

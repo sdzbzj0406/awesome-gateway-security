@@ -3,6 +3,7 @@ package com.darren.demo.handler;
 import com.darren.demo.response.MessageCode;
 import com.darren.demo.response.WsResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -14,10 +15,12 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
-public class AuthenticationFaillHandler  implements ServerAuthenticationFailureHandler {
+@Slf4j
+public class AuthenticationFaillHandler implements ServerAuthenticationFailureHandler {
 
     @Override
     public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException e) {
+        log.info("AuthenticationFaillHandler");
         ServerWebExchange exchange = webFilterExchange.getExchange();
         ServerHttpResponse response = exchange.getResponse();
         //设置headers
@@ -26,12 +29,11 @@ public class AuthenticationFaillHandler  implements ServerAuthenticationFailureH
         httpHeaders.add("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
         //设置body
         WsResponse<String> wsResponse = WsResponse.failure(MessageCode.COMMON_AUTHORIZED_FAILURE);
-        byte[]   dataBytes={};
+        byte[] dataBytes = {};
         try {
             ObjectMapper mapper = new ObjectMapper();
-            dataBytes=mapper.writeValueAsBytes(wsResponse);
-        }
-        catch (Exception ex){
+            dataBytes = mapper.writeValueAsBytes(wsResponse);
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
         DataBuffer bodyDataBuffer = response.bufferFactory().wrap(dataBytes);

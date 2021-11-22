@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiTest {
 
     @GetMapping("/demo")
-    private String  demo(){
+    private String demo() {
         return "demo";
     }
 }
